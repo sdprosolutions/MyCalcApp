@@ -13,12 +13,21 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install system packages
-      run: sudo apt-get update && sudo apt-get install -y build-essential git python3-dev openjdk-11-jdk zip unzip wget
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git python3-dev openjdk-11-jdk zip unzip wget
 
     - name: Install Python and Buildozer
       run: |
         python3 -m pip install --upgrade pip setuptools wheel cython
         pip install buildozer
+
+    - name: Accept Android SDK licenses and install build-tools
+      run: |
+        mkdir -p ~/.android
+        echo '### Accepted licenses ###' > ~/.android/repositories.cfg
+        yes | sdkmanager --licenses || true
+        sdkmanager "build-tools;34.0.0" "platform-tools" "platforms;android-34"
 
     - name: Configure buildozer.spec
       run: |

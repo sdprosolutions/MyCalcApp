@@ -13,18 +13,17 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Setup Python 3.10
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: 3.10
 
-    - name: Install Buildozer & Dependencies
+    - name: Install Buildozer and dependencies
       run: |
         pip install --upgrade pip setuptools wheel
-        pip install cython
-        pip install buildozer
+        pip install cython buildozer
 
-    - name: Initialize buildozer if not exists
+    - name: Ensure buildozer.spec exists
       run: |
         if [ ! -f buildozer.spec ]; then
           buildozer init
@@ -33,17 +32,17 @@ jobs:
     - name: Configure buildozer.spec
       run: |
         sed -i 's/^requirements = .*/requirements = python3,kivy,kivymd/' buildozer.spec
-        sed -i 's|^# entrypoint = main.py|entrypoint = main.py|' buildozer.spec
-        sed -i 's/^# android.api =.*/android.api = 31/' buildozer.spec
-        sed -i 's/^# android.ndk =.*/android.ndk = 23b/' buildozer.spec
-        sed -i 's/^# android.archs =.*/android.archs = arm64-v8a,armeabi-v7a/' buildozer.spec
+        sed -i 's|^# *entrypoint =.*|entrypoint = main.py|' buildozer.spec
+        sed -i 's/^# *android.api =.*/android.api = 31/' buildozer.spec
+        sed -i 's/^# *android.ndk =.*/android.ndk = 23b/' buildozer.spec
+        sed -i 's/^# *android.archs =.*/android.archs = arm64-v8a,armeabi-v7a/' buildozer.spec
 
-    - name: Build APK
+    - name: Build the APK
       run: |
-        buildozer -v android debug
+        buildozer android debug
 
-    - name: Upload APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MyCalcApp-APK
+        name: MyCalcApp-debug.apk
         path: bin/*.apk
